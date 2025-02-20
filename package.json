@@ -1,0 +1,17 @@
+{
+  "name": "174a-project",
+  "version": "0.0.1",
+  "description": "Three.js based Scrolling Game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Clayton Castro, Alexander Neary, Teodors Smith",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.173.0"
+  },
+  "devDependencies": {
+    "vite": "^6.1.1"
+  }
+}

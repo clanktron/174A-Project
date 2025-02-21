@@ -27,6 +27,9 @@ const hue_roc = 0.2;
 const lightness_roc = 0.4;
 let time = Math.acos(2 * ((initialHue - HUE_MIN) / (HUE_MAX - HUE_MIN)) - 1) / hue_roc;
 
+const wallCount = 11
+const bouncePadCount = 16
+
 // Player object
 let player_height = 0.5;
 const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -46,10 +49,10 @@ let max_jumps = 2;
 let jump_counter = max_jumps;
 let y_velocity = 0;
 const gravity = -9.8;
-let default_obstacle_velocity = 5;
+let default_obstacle_velocity = 10;
 
-let walls = createWalls(4);
-let bouncePads = createBouncePads(3);
+let walls = createWalls(wallCount);
+let bouncePads = createBouncePads(bouncePadCount);
 let floor = createFloor();
 scene.add(floor);
 addObjectsToScene(walls);
@@ -141,11 +144,10 @@ function createWall(startingPosition: number, height: number) {
 
 function createWalls(count: number): THREE.Mesh[] {
     var walls = []
-    var height = randomWallHeight(2, 5)
     var startingXPosition = 26
     for (var i = 0; i < count; i++) {
         startingXPosition = startingXPosition + 30
-        const wall = createWall(startingXPosition, height)
+        const wall = createWall(startingXPosition, randomWallHeight(2, 5))
         walls.push(wall)
     }
     return walls
@@ -222,8 +224,8 @@ function resetGame() {
         scene.remove(bouncePads[i]);
     }
     // Create new walls and bounce pads
-    walls = createWalls(4);
-    bouncePads = createBouncePads(3);
+    walls = createWalls(wallCount);
+    bouncePads = createBouncePads(bouncePadCount);
     addObjectsToScene(walls);
     addObjectsToScene(bouncePads);
     // Reset player position

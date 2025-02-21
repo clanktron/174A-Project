@@ -8,8 +8,24 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Background color
-let backgroundColor = new THREE.Color(0x000000);
+let backgroundColor = new THREE.Color();
 scene.background = backgroundColor;
+
+// Color animation constraints
+const HUE_MIN = 0.2;  // Adjust these values to control the hue range
+const HUE_MAX = 0.8;  // (0-1 represents the full color spectrum)
+const LIGHTNESS_MIN = 0.3;  // Prevent colors from getting too dark
+const LIGHTNESS_MAX = 0.7;  // Prevent colors from getting too bright
+
+// Generate random initial values within constraints
+const initialHue = HUE_MIN + Math.random() * (HUE_MAX - HUE_MIN);
+const initialLightness = LIGHTNESS_MIN + Math.random() * (LIGHTNESS_MAX - LIGHTNESS_MIN);
+backgroundColor.setHSL(initialHue, 0.5, initialLightness);
+
+// Calculate initial time based on the random hue
+const hue_roc = 0.2;
+const lightness_roc = 0.4;
+let time = Math.acos(2 * ((initialHue - HUE_MIN) / (HUE_MAX - HUE_MIN)) - 1) / hue_roc;
 
 // Player object
 let player_height = 0.5;
@@ -24,39 +40,65 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 5, 0);
 camera.position.y = 1;
 
-let hue = 0;
-let lightness = 0;
-let time = 0;
 const clock = new THREE.Clock();
 
-let walls = createWalls(4)
-let bouncePads = createBouncePads(3)
-let floor = createFloor()
-scene.add(floor)
-addObjectsToScene(walls)
-addObjectsToScene(bouncePads)
+let max_jumps = 2;
+let jump_counter = max_jumps;
+let y_velocity = 0;
+const gravity = -9.8;
+let default_obstacle_velocity = 5;
+
+let walls = createWalls(4);
+let bouncePads = createBouncePads(3);
+let floor = createFloor();
+scene.add(floor);
+addObjectsToScene(walls);
+addObjectsToScene(bouncePads);
 
 function animate() {
     controls.update();
     let delta_time = clock.getDelta();
     time += delta_time;
-
     updatePlayer(delta_time);
     updateBouncePads(delta_time, bouncePads);
-    updateWallPositions(delta_time, walls)
-    checkForWallCollisions(walls)
-    checkForWallLandings(walls)
+    updateWallPositions(delta_time, walls);
+    checkForWallCollisions(walls);
+    checkForWallLandings(walls);
 
-    // rate of change for hue and lightness
-    let hue_roc = 0.05;
-    let lightness_roc = 0.2;
+    // Background color animation with constraints
+    // Map cosine output (-1 to 1) to our desired hue range
+    let hue = HUE_MIN + ((Math.cos(time * hue_roc) + 1) / 2) * (HUE_MAX - HUE_MIN);
+    // Map cosine output (-1 to 1) to our desired lightness range
+    let lightness = LIGHTNESS_MIN + ((Math.cos(time * lightness_roc) + 1) / 2) * (LIGHTNESS_MAX - LIGHTNESS_MIN);
 
-    hue = (Math.cos(time * hue_roc) + 1) / 2;
-    lightness = (Math.cos(time * lightness_roc) + 1.25) / 2;
     backgroundColor.setHSL(hue, 0.5, lightness);
     scene.background = backgroundColor;
 
     renderer.render(scene, camera);
+}
+
+renderer.setAnimationLoop(animate);
+
+renderer.setAnimationLoop(animate);
+
+renderer.setAnimationLoop(animate);
+
+function jump() {
+    var jump_velocity = 5;
+    if (jump_counter > 0) {
+        y_velocity = jump_velocity;
+        jump_counter--;
+    }
+}
+
+function updatePlayer(delta_time: number) {
+    y_velocity += gravity * delta_time;
+    player.position.y += y_velocity * delta_time;
+    if ((player.position.y <= player_height) && (y_velocity <= 0)) {
+        player.position.y = player_height;
+        y_velocity = 0;
+        jump_counter = max_jumps;
+    }
 }
 
 function addObjectsToScene(objects: THREE.Mesh[]) {
@@ -121,30 +163,6 @@ function createFloor() {
     return floor
 }
 
-let max_jumps = 2;
-let jump_counter = max_jumps;
-let y_velocity = 0;
-const gravity = -9.8;
-let default_obstacle_velocity = 5;
-
-function jump() {
-    var jump_velocity = 5;
-    if (jump_counter > 0) {
-        y_velocity = jump_velocity;
-        jump_counter--;
-    } 
-}
-
-function updatePlayer(delta_time: number) {
-    y_velocity += gravity * delta_time;
-    player.position.y += y_velocity * delta_time;
-    if ((player.position.y <= player_height) && (y_velocity <= 0)) {
-        player.position.y = player_height;
-        y_velocity = 0;
-        jump_counter = max_jumps;
-    }
-}
-
 function updateBouncePadPositions(delta_time: number, bouncePads: THREE.Mesh[]) {
     for (var i = 0; i < bouncePads.length; i++) {
         bouncePads[i].position.x -= default_obstacle_velocity * delta_time;
@@ -200,24 +218,18 @@ function checkForWallCollisions(walls: THREE.Mesh[]) {
 
 function resetGame() {
     console.log("resetting game...");
-
-    // Remove old walls from the scene
+    // Remove old walls and bounce pads
     for (let i = 0; i < walls.length; i++) {
         scene.remove(walls[i]);
     }
-    // Remove old bounce pads from the scene
     for (let i = 0; i < bouncePads.length; i++) {
         scene.remove(bouncePads[i]);
     }
-
     // Create new walls and bounce pads
     walls = createWalls(4);
     bouncePads = createBouncePads(3);
-
-    // Add new objects to the scene
     addObjectsToScene(walls);
     addObjectsToScene(bouncePads);
-
     // Reset player position
     player.position.set(0, player_height, 0);
     y_velocity = 0;
@@ -235,5 +247,3 @@ function onKeyPress(event: any) {
 }
 
 window.addEventListener('keydown', onKeyPress);
-
-renderer.setAnimationLoop(animate);

@@ -23,16 +23,16 @@ scene.add(player);
 // First Bounce Pad object
 let bouncePad_height = 0.2;
 let bouncePad_1_starting_x_pos = 20;
-const bp_geometry = new THREE.BoxGeometry(1, 0.4, 1);
-const bp_material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const bouncePad_1 = new THREE.Mesh(bp_geometry, bp_material);
+const bouncePad_geometry = new THREE.BoxGeometry(1, 0.4, 1);
+const bouncePad_material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const bouncePad_1 = new THREE.Mesh(bouncePad_geometry, bouncePad_material);
 bouncePad_1.position.y = bouncePad_height;
 bouncePad_1.position.x = bouncePad_1_starting_x_pos;
 scene.add(bouncePad_1);
 
 // Second Bounce Pad object
 let bouncePad_2_starting_x_pos = 39;
-const bouncePad_2 = new THREE.Mesh(bp_geometry, bp_material);
+const bouncePad_2 = new THREE.Mesh(bouncePad_geometry, bouncePad_material);
 bouncePad_2.position.y = bouncePad_height;
 bouncePad_2.position.x = bouncePad_2_starting_x_pos;
 scene.add(bouncePad_2);
@@ -40,10 +40,48 @@ scene.add(bouncePad_2);
 
 // Third Bounce Pad object
 let bouncePad_3_starting_x_pos = 49;
-const bouncePad_3 = new THREE.Mesh(bp_geometry, bp_material);
+const bouncePad_3 = new THREE.Mesh(bouncePad_geometry, bouncePad_material);
 bouncePad_3.position.y = bouncePad_height;
 bouncePad_3.position.x = bouncePad_3_starting_x_pos;
 scene.add(bouncePad_3);
+
+
+// First Wall object
+let wall_1_height = 5;
+let wall_1_starting_x_pos = 26;
+const wall_1_geometry = new THREE.BoxGeometry(1, wall_1_height, 1);
+const wall_material = new THREE.MeshBasicMaterial({ color: 0xBC4A3C });
+const wall_1 = new THREE.Mesh(wall_1_geometry, wall_material);
+wall_1.position.y = wall_1_height / 2;
+wall_1.position.x = wall_1_starting_x_pos;
+scene.add(wall_1);
+
+// Second Wall object
+let wall_2_height = 2;
+let wall_2_starting_x_pos = 60;
+const wall_2_geometry = new THREE.BoxGeometry(1, wall_2_height, 1);
+const wall_2 = new THREE.Mesh(wall_2_geometry, wall_material);
+wall_2.position.y = wall_2_height / 2;
+wall_2.position.x = wall_2_starting_x_pos;
+scene.add(wall_2);
+
+// Third Wall object
+let wall_3_height = 2;
+let wall_3_starting_x_pos = 80;
+const wall_3_geometry = new THREE.BoxGeometry(1, wall_3_height, 1);
+const wall_3 = new THREE.Mesh(wall_3_geometry, wall_material);
+wall_3.position.y = wall_3_height / 2;
+wall_3.position.x = wall_3_starting_x_pos;
+scene.add(wall_3);
+
+// Fourth Wall object
+let wall_4_height = 3;
+let wall_4_starting_x_pos = 90;
+const wall_4_geometry = new THREE.BoxGeometry(1, wall_4_height, 1);
+const wall_4 = new THREE.Mesh(wall_4_geometry, wall_material);
+wall_4.position.y = wall_4_height / 2;
+wall_4.position.x = wall_4_starting_x_pos;
+scene.add(wall_4);
 
 
 // Floor
@@ -77,6 +115,7 @@ function animate() {
 
     updatePlayer(delta_time);
     updateBouncePads(delta_time);
+    updateWalls(delta_time);
 
     // rate of change for hue and lightness
     let hue_roc = 0.05;
@@ -102,7 +141,8 @@ let default_obstacle_velocity = 5;
 
 function jump() {
     if (jump_counter > 0) { // if player has 1 or 2 (both) jumps left
-        y_velocity += jump_velocity;
+        //y_velocity += jump_velocity; old jump physics
+        y_velocity = jump_velocity;
         jump_counter--;
     } 
 }
@@ -136,6 +176,59 @@ function updateBouncePads(delta_time) {
         y_velocity = 10;
         jump_counter = max_jumps;
     }
+}
+
+function updateWalls(delta_time) {
+    wall_1.position.x -= default_obstacle_velocity * delta_time;
+    wall_2.position.x -= default_obstacle_velocity * delta_time;
+    wall_3.position.x -= default_obstacle_velocity * delta_time;
+    wall_4.position.x -= default_obstacle_velocity * delta_time;
+
+    if ((wall_1.position.x <= 1) && (wall_1.position.x >= -1)  && (player.position.y <= wall_1_height)) {
+        defeat();
+    }
+    if ((wall_2.position.x <= 1) && (wall_2.position.x >= -1)  && (player.position.y <= wall_2_height)) {
+        defeat();
+    }
+    if ((wall_3.position.x <= 1) && (wall_3.position.x >= -1)  && (player.position.y <= wall_3_height)) {
+        defeat();
+    }
+    if ((wall_4.position.x <= 1) && (wall_4.position.x >= -1)  && (player.position.y <= wall_4_height)) {
+        defeat();
+    }
+
+    if ((wall_1.position.x <= 1) && (wall_1.position.x >= -1)  && (player.position.y <= wall_1_height + player_height)) {
+        y_velocity = 0;
+        jump_counter = max_jumps;
+        player.position.y = wall_1_height + player_height;
+    }
+    if ((wall_2.position.x <= 1) && (wall_2.position.x >= -1)  && (player.position.y <= wall_2_height + player_height)) {
+        y_velocity = 0;
+        jump_counter = max_jumps;
+        player.position.y = wall_1_height + player_height;
+    }
+    if ((wall_3.position.x <= 1) && (wall_3.position.x >= -1)  && (player.position.y <= wall_3_height + player_height)) {
+        y_velocity = 0;
+        jump_counter = max_jumps;
+        player.position.y = wall_3_height + player_height;
+    }
+    if ((wall_4.position.x <= 1) && (wall_4.position.x >= -1)  && (player.position.y <= wall_4_height + player_height)) {
+        y_velocity = 0;
+        jump_counter = max_jumps;
+        player.position.y = wall_4_height + player_height;
+    }
+
+}
+
+function defeat(){
+    // Reset positions of all objects
+    player.position.y = player_height;
+    wall_1.position.x = wall_1_starting_x_pos;
+    wall_2.position.x = wall_2_starting_x_pos;
+    bouncePad_1.position.x = bouncePad_1_starting_x_pos;
+    bouncePad_2.position.x = bouncePad_2_starting_x_pos;
+    bouncePad_3.position.x = bouncePad_3_starting_x_pos;
+
 }
 
 window.addEventListener('keydown', onKeyPress);

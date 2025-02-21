@@ -79,10 +79,6 @@ function animate() {
 
 renderer.setAnimationLoop(animate);
 
-renderer.setAnimationLoop(animate);
-
-renderer.setAnimationLoop(animate);
-
 function jump() {
     var jump_velocity = 5;
     if (jump_counter > 0) {

@@ -95,7 +95,7 @@ const gridHelper = new THREE.GridHelper(100, 100);
 scene.add(gridHelper);
 
 
-camera.position.set(0, 5, 10);
+camera.position.set(-10, 40, 10);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 5, 0);
@@ -205,7 +205,7 @@ function updateWalls(delta_time) {
     if ((wall_2.position.x <= 1) && (wall_2.position.x >= -1)  && (player.position.y <= wall_2_height + player_height)) {
         y_velocity = 0;
         jump_counter = max_jumps;
-        player.position.y = wall_1_height + player_height;
+        player.position.y = wall_2_height + player_height;
     }
     if ((wall_3.position.x <= 1) && (wall_3.position.x >= -1)  && (player.position.y <= wall_3_height + player_height)) {
         y_velocity = 0;
@@ -225,6 +225,8 @@ function defeat(){
     player.position.y = player_height;
     wall_1.position.x = wall_1_starting_x_pos;
     wall_2.position.x = wall_2_starting_x_pos;
+    wall_3.position.x = wall_3_starting_x_pos;
+    wall_4.position.x = wall_4_starting_x_pos;
     bouncePad_1.position.x = bouncePad_1_starting_x_pos;
     bouncePad_2.position.x = bouncePad_2_starting_x_pos;
     bouncePad_3.position.x = bouncePad_3_starting_x_pos;

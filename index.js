@@ -85,14 +85,15 @@ scene.add(wall_4);
 
 
 // Floor
-// const floorGeometry = new THREE.PlaneGeometry(200, 1);
-// const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-// const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-// floor.rotation.x = -Math.PI / 2; // rotate 
-// scene.add(floor);
+const floorGeometry = new THREE.PlaneGeometry(200, 1);
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = -Math.PI / 2; // rotate 
+scene.add(floor);
 
-const gridHelper = new THREE.GridHelper(100, 100);
-scene.add(gridHelper);
+// Grid
+//const gridHelper = new THREE.GridHelper(100, 100);
+//scene.add(gridHelper);
 
 
 camera.position.set(-10, 40, 10);

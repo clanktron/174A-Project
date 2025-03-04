@@ -61,6 +61,12 @@ let paused = false;
 const pauseOverlay = document.getElementById("pause-overlay")!;
 const resumeButton = document.getElementById("resume-button")!;
 
+let score = 0;
+let highScore = parseFloat(localStorage.getItem("highScore") || "0"); // Load high score from localStorage
+const scoreElement = document.getElementById("score")!;
+const highScoreElement = document.getElementById("high-score")!;
+highScoreElement.textContent = highScore.toFixed(1);
+
 let walls = createWalls(wallCount);
 let bouncePads = createBouncePads(bouncePadCount);
 let floor = createFloor();
@@ -80,11 +86,18 @@ function animate() {
         updateWallPositions(delta_time, walls);
         checkForWallCollisions(walls);
         checkForWallLandings(walls);
+
+        score += delta_time * 10;
+        scoreElement.textContent = score.toFixed(1);
+        if (score > highScore) {
+            highScore = score;
+            highScoreElement.textContent = highScore.toFixed(1);
+            localStorage.setItem("highScore", highScore.toFixed(1));
+        }
     } else {
         clock.stop();
     }
     
-
     // Background color animation with constraints
     // Map cosine output (-1 to 1) to our desired hue range
     let hue = HUE_MIN + ((Math.cos(time * hue_roc) + 1) / 2) * (HUE_MAX - HUE_MIN);
@@ -240,6 +253,11 @@ function checkForWallCollisions(walls: THREE.Mesh[]) {
 
 function resetGame() {
     console.log("resetting game...");
+
+    // Set score to 0
+    score = 0;
+    scoreElement.textContent = score.toFixed(1);
+
     // Remove old walls and bounce pads
     for (let i = 0; i < walls.length; i++) {
         scene.remove(walls[i]);

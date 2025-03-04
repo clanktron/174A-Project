@@ -11,6 +11,11 @@ document.body.appendChild(renderer.domElement);
 let backgroundColor = new THREE.Color();
 scene.background = backgroundColor;
 
+// Light Source
+let light = new THREE.PointLight(0xffffff, 100, 0, 1);
+light.position.set(10, 30, 10);
+scene.add(light);
+
 // Color animation constraints
 const HUE_MIN = 0.2;  // Adjust these values to control the hue range
 const HUE_MAX = 0.8;  // (0-1 represents the full color spectrum)
@@ -33,7 +38,8 @@ const bouncePadCount = 16
 // Player object
 let player_height = 0.5;
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+//const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const material = new THREE.MeshPhongMaterial({ color: 0x0000ff })
 const player = new THREE.Mesh(geometry, material);
 player.position.y = player_height;
 scene.add(player);
@@ -109,7 +115,8 @@ function addObjectsToScene(objects: THREE.Mesh[]) {
 function createBouncePad(xPosition: number) {
     var height = 0.2;
     const geometry = new THREE.BoxGeometry(1, 0.4, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
     const bouncePad = new THREE.Mesh(geometry, material);
     bouncePad.position.y = height
     bouncePad.position.x = xPosition
@@ -135,7 +142,8 @@ function createWall(startingPosition: number, height: number) {
     var height = height
     var startingPosition = startingPosition;
     const geometry = new THREE.BoxGeometry(1, height, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0xBC4A3C });
+    //const material = new THREE.MeshBasicMaterial({ color: 0xBC4A3C });
+    const material = new THREE.MeshPhongMaterial({ color: 0xBC4A3C })
     const wall = new THREE.Mesh(geometry, material);
     wall.position.y = height / 2;
     wall.position.x = startingPosition;

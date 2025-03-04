@@ -57,6 +57,10 @@ let y_velocity = 0;
 const gravity = -9.8;
 let default_obstacle_velocity = 10;
 
+let paused = false;
+const pauseOverlay = document.getElementById("pause-overlay")!;
+const resumeButton = document.getElementById("resume-button")!;
+
 let walls = createWalls(wallCount);
 let bouncePads = createBouncePads(bouncePadCount);
 let floor = createFloor();
@@ -68,11 +72,18 @@ function animate() {
     controls.update();
     let delta_time = clock.getDelta();
     time += delta_time;
-    updatePlayer(delta_time);
-    updateBouncePads(delta_time, bouncePads);
-    updateWallPositions(delta_time, walls);
-    checkForWallCollisions(walls);
-    checkForWallLandings(walls);
+
+    if (!paused) {
+        clock.start();
+        updatePlayer(delta_time);
+        updateBouncePads(delta_time, bouncePads);
+        updateWallPositions(delta_time, walls);
+        checkForWallCollisions(walls);
+        checkForWallLandings(walls);
+    } else {
+        clock.stop();
+    }
+    
 
     // Background color animation with constraints
     // Map cosine output (-1 to 1) to our desired hue range
@@ -94,6 +105,11 @@ function jump() {
         y_velocity = jump_velocity;
         jump_counter--;
     }
+}
+
+function togglePause() {
+    paused = !paused;
+    pauseOverlay.style.display = paused ? "block" : "none";
 }
 
 function updatePlayer(delta_time: number) {
@@ -245,11 +261,15 @@ function resetGame() {
 function onKeyPress(event: any) {
     switch (event.key) {
         case ' ':
-            jump();
+            if (!paused) { jump(); }
             break;
+        case 'p':
+            togglePause();
         default:
             console.debug(`Key ${event.key} pressed`);
     }
 }
+
+resumeButton.addEventListener("click", () => { togglePause(); });
 
 window.addEventListener('keydown', onKeyPress);

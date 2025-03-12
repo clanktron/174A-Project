@@ -32,13 +32,13 @@ const hue_roc = 0.2;
 const lightness_roc = 0.4;
 let time = Math.acos(2 * ((initialHue - HUE_MIN) / (HUE_MAX - HUE_MIN)) - 1) / hue_roc;
 
-const wallCount = 11
-const bouncePadCount = 16
+const wallCount = 11;
+const bouncePadCount = 16;
+const spikeCount = 35;
 
 // Player object
 let player_height = 0.5;
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-//const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 const material = new THREE.MeshPhongMaterial({ color: 0x0000ff })
 const player = new THREE.Mesh(geometry, material);
 player.position.y = player_height;
@@ -69,10 +69,12 @@ highScoreElement.textContent = highScore.toFixed(1);
 
 let walls = createWalls(wallCount);
 let bouncePads = createBouncePads(bouncePadCount);
+let spikes = createSpikes(spikeCount);
 let floor = createFloor();
 scene.add(floor);
 addObjectsToScene(walls);
 addObjectsToScene(bouncePads);
+addObjectsToScene(spikes);
 
 function animate() {
     controls.update();
@@ -83,6 +85,7 @@ function animate() {
         clock.start();
         updatePlayer(delta_time);
         updateBouncePads(delta_time, bouncePads);
+        updateSpikes(delta_time, spikes);
         updateWallPositions(delta_time, walls);
         checkForWallCollisions(walls);
         checkForWallLandings(walls);
@@ -163,6 +166,27 @@ function createBouncePads(count: number) {
     return bouncePads
 }
 
+function createSpike(xPosition: number) {
+    var height = 0.4;
+    const geometry = new THREE.ConeGeometry(0.75, 0.75, 4, 1, false, Math.PI/4);
+    const material = new THREE.MeshPhongMaterial({ color: 0xff00ff });
+    const spike = new THREE.Mesh(geometry, material);
+    spike.position.y = height;
+    spike.position.x = xPosition;
+    return spike;
+}
+
+function createSpikes(count: number) {
+    var spikes = []
+    var xPosition = 33
+    for (var i = 0; i < count; i++) {
+        xPosition = xPosition + 9
+        const newSpike = createSpike(xPosition)
+        spikes.push(newSpike)
+    }
+    return spikes
+}
+
 function randomWallHeight(minHeight: number, maxHeight: number) {
     return Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
 }
@@ -171,7 +195,6 @@ function createWall(startingPosition: number, height: number) {
     var height = height
     var startingPosition = startingPosition;
     const geometry = new THREE.BoxGeometry(1, height, 1);
-    //const material = new THREE.MeshBasicMaterial({ color: 0xBC4A3C });
     const material = new THREE.MeshPhongMaterial({ color: 0xBC4A3C })
     const wall = new THREE.Mesh(geometry, material);
     wall.position.y = height / 2;
@@ -204,11 +227,6 @@ function updateBouncePadPositions(delta_time: number, bouncePads: THREE.Mesh[]) 
     }
 }
 
-function updateBouncePads(delta_time: number, bouncePads: THREE.Mesh[]) {
-    updateBouncePadPositions(delta_time, bouncePads)
-    checkBouncePadCollisions(bouncePads)
-}
-
 function checkBouncePadCollisions(bouncePads: THREE.Mesh[]) {
     for (var i = 0; i < bouncePads.length; i++) {
         if ((bouncePads[i].position.x <= 1) && (bouncePads[i].position.x >= -1) && (player.position.y <= 0.7)) {
@@ -216,6 +234,30 @@ function checkBouncePadCollisions(bouncePads: THREE.Mesh[]) {
             jump_counter = max_jumps;
         }
     }
+}
+
+function updateBouncePads(delta_time: number, bouncePads: THREE.Mesh[]) {
+    updateBouncePadPositions(delta_time, bouncePads)
+    checkBouncePadCollisions(bouncePads)
+}
+
+function updateSpikePositions(delta_time: number, spikes: THREE.Mesh[]) {
+    for (var i = 0; i < spikes.length; i++) {
+        spikes[i].position.x -= default_obstacle_velocity * delta_time;
+    }
+}
+
+function checkSpikeCollisions(spikes: THREE.Mesh[]) {
+    for (var i = 0; i < spikes.length; i++) {
+        if ((spikes[i].position.x <= 1) && (spikes[i].position.x >= -1) && (player.position.y <= 0.7)) {
+            resetGame();
+        }
+    }
+}
+
+function updateSpikes(delta_time: number, spikes: THREE.Mesh[]) {
+    updateSpikePositions(delta_time, spikes);
+    checkSpikeCollisions(spikes);
 }
 
 function updateWallPositions(delta_time: number, walls: THREE.Mesh[]) {
@@ -258,18 +300,23 @@ function resetGame() {
     score = 0;
     scoreElement.textContent = score.toFixed(1);
 
-    // Remove old walls and bounce pads
+    // Remove old walls, bounce pads, and spikes
     for (let i = 0; i < walls.length; i++) {
         scene.remove(walls[i]);
     }
     for (let i = 0; i < bouncePads.length; i++) {
         scene.remove(bouncePads[i]);
     }
+    for (let i = 0; i < spikes.length; i++) {
+        scene.remove(spikes[i]);
+    }
     // Create new walls and bounce pads
     walls = createWalls(wallCount);
     bouncePads = createBouncePads(bouncePadCount);
+    spikes = createSpikes(spikeCount);
     addObjectsToScene(walls);
     addObjectsToScene(bouncePads);
+    addObjectsToScene(spikes);
     // Reset player position
     player.position.set(0, player_height, 0);
     y_velocity = 0;

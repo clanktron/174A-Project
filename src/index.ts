@@ -157,7 +157,9 @@ function togglePause() {
 function resetGame() {
     console.log("resetting game...");
     music.stop();
+    deathSound.stop();
     deathSound.play();
+    pauseOverlay.style.display = "none";
     score = 0;
     scoreElement.textContent = score.toFixed(1);
     objects.forEach((meshes, _) => {
@@ -175,7 +177,10 @@ function resetGame() {
 window.addEventListener('keydown', (event) => {
     if (event.key === ' ') {
         if (!paused) player.jump();
+        if (!gameStarted) startGame()
     } else if (event.key === 'p') {
         togglePause();
+    } else if (event.key === 'r') {
+        resetGame();
     }
 });

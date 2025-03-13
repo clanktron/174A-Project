@@ -47,7 +47,7 @@ highScoreElement.textContent = highScore.toFixed(1);
 const speedElement = document.getElementById("currentVelocity")!;
 
 let objects: Map<string, THREE.Mesh[]> = new Map();
-const floor = createFloor();
+const { floor, floorTexture } = createFloor();
 const player = new Player();
 scene.add(player.Mesh);
 scene.add(floor);
@@ -104,7 +104,8 @@ function animate() {
     camera.position.set(-10 + panX, 4 + panY, 12 + panZ);
 
     if (gameStarted && !paused) {
-        currentVelocity += 0.0005
+        currentVelocity += 0.0005;
+        floorTexture.offset.x += currentVelocity * delta_time;
         spawnObjects(objects);
         objects.forEach((meshes, _) => {
             removeOffscreenObjects(meshes, scene);

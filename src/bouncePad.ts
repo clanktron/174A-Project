@@ -3,7 +3,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { collisions } from './object';
 import { Player } from './player';
 
-const INITIAL_PAD_COUNT = 11;
+const INITIAL_PAD_COUNT = 3;
 
 const height = 0.2
 
@@ -16,7 +16,7 @@ export function createBouncePad(xPosition: number) {
     return bouncePad
 }
 
-export function createBouncePads() {
+export function createBouncePads(): THREE.Mesh[] {
     var bouncePads = []
     var xPosition = 20
     for (var i = 0; i < INITIAL_PAD_COUNT; i++) {

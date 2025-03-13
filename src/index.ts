@@ -2,33 +2,32 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { updateBackgroundColor } from './background';
 import { deathSound, music, listener } from './audio';
-import { DEFAULT_OBSTACLE_VELOCITY } from './globals';
-import * as wall from './wall'
-import { checkBouncePadCollisions, createBouncePads } from './bouncePad'
-import * as spike from './spike'
-import { Player } from './player'
-import { checkForObstacleCollisions, updateObjectPositions } from './object';
+import { DEFAULT_OBSTACLE_VELOCITY, OBJECT_SPACING, OBJECT_SPAWN_START, OBJECT_SPAWN_LIMIT } from './globals';
+import { createWall, randomWallHeight, checkForWallLandings } from './wall';
+import { checkBouncePadCollisions, createBouncePad } from './bouncePad';
+import * as spike from './spike';
+import { Player } from './player';
+import { checkForObstacleCollisions, updateObjectPositions, removeOffscreenObjects } from './object';
 import { createFloor } from './floor';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
-// Light Source
-let light = new THREE.PointLight(0xffffff, 100, 0, 1);
-light.position.set(10, 30, 10);
-scene.add(light);
 
 camera.position.set(-10, 40, 10);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 5, 0);
 camera.position.y = 1;
-camera.add(listener)
+camera.add(listener);
+
+let light = new THREE.PointLight(0xffffff, 100, 0, 1);
+light.position.set(10, 30, 10);
+scene.add(light);
 
 const clock = new THREE.Clock();
-
 let gameStarted = false;
 const startOverlay = document.getElementById("start-overlay")!;
 const startButton = document.getElementById("start-button")!;
@@ -45,31 +44,72 @@ let highScore = parseFloat(localStorage.getItem("highScore") || "0"); // Load hi
 const scoreElement = document.getElementById("score")!;
 const highScoreElement = document.getElementById("high-score")!;
 highScoreElement.textContent = highScore.toFixed(1);
+const speedElement = document.getElementById("currentVelocity")!;
 
-let walls = wall.createWalls();
-let bouncePads = createBouncePads();
-let spikes = spike.createSpikes();
-let floor = createFloor()
-const player = new Player()
+let objects: Map<string, THREE.Mesh[]> = new Map();
+const floor = createFloor();
+const player = new Player();
 scene.add(player.Mesh);
 scene.add(floor);
-addObjectsToScene(walls);
-addObjectsToScene(bouncePads);
-addObjectsToScene(spikes);
 
-let time = 0
+function spawnObjects(objects: Map<string, THREE.Mesh[]>) {
+    if (furthestObjectPosition < OBJECT_SPAWN_START) {
+        furthestObjectPosition = OBJECT_SPAWN_START;
+    }
+
+    while (furthestObjectPosition < OBJECT_SPAWN_LIMIT) {
+        let type = Math.random();
+        let newObject;
+        
+        if (type < 0.4) {
+            newObject = createWall(furthestObjectPosition, randomWallHeight(1, 3));
+            if (!objects.has("wall")) {
+                objects.set("wall", []);
+            }
+            objects.get("wall")!.push(newObject);
+        } else if (type < 0.7) {
+            newObject = createBouncePad(furthestObjectPosition);
+            if (!objects.has("bouncePad")) {
+                objects.set("bouncePad", []);
+            }
+            objects.get("bouncePad")!.push(newObject);
+        } else {
+            newObject = spike.createSpike(furthestObjectPosition);
+            if (!objects.has("spike")) {
+                objects.set("spike", []);
+            }
+            objects.get("spike")!.push(newObject);
+        }
+
+        scene.add(newObject);
+        furthestObjectPosition += OBJECT_SPACING;
+    }
+}
+
+let furthestObjectPosition = 0
+let currentVelocity = DEFAULT_OBSTACLE_VELOCITY
+
 function animate() {
     controls.update();
     let delta_time = clock.getDelta();
-    time += delta_time;
 
     if (gameStarted && !paused) {
-        updateObjectPositions(delta_time, [...walls, ...bouncePads, ...spikes], DEFAULT_OBSTACLE_VELOCITY)
-        player.update(delta_time)
-        wall.checkForWallLandings(walls, player);
-        checkBouncePadCollisions(bouncePads, player)
-        checkForObstacleCollisions([...walls, ...spikes], player.Mesh, resetGame)
+        currentVelocity += 0.0005
+        spawnObjects(objects);
+        objects.forEach((meshes, _) => {
+            removeOffscreenObjects(meshes, scene);
+            furthestObjectPosition = updateObjectPositions(delta_time, meshes, currentVelocity);
+        });
+        player.update(delta_time);
+        checkBouncePadCollisions(objects.get("bouncePad") ?? [], player);
+        checkForWallLandings(objects.get("wall") ?? [], player)
+        checkForObstacleCollisions(
+            [...(objects.get("spike") ?? []), ...(objects.get("wall") ?? [])], 
+            player.Mesh, 
+            resetGame
+        );
 
+        speedElement.textContent = currentVelocity.toFixed(1);
         score += delta_time * 10;
         scoreElement.textContent = score.toFixed(1);
         if (score > highScore) {
@@ -77,9 +117,8 @@ function animate() {
             highScoreElement.textContent = highScore.toFixed(1);
             localStorage.setItem("highScore", highScore.toFixed(1));
         }
-    } 
-
-    scene.background = updateBackgroundColor(time);
+    }
+    scene.background = updateBackgroundColor(score / 100);
     renderer.render(scene, camera);
 }
 
@@ -88,65 +127,45 @@ renderer.setAnimationLoop(animate);
 function startGame() {
     startOverlay.style.display = "none";
     gameStarted = true;
-    music.play()
-    clock.start()
+    music.play();
+    clock.start();
 }
 
 function togglePause() {
     if (paused) {
         music.play();
         clock.start();
-        pauseOverlay.style.display = "none"
+        pauseOverlay.style.display = "none";
     } else {
         clock.stop();
         music.pause();
-        pauseOverlay.style.display = "block"
+        pauseOverlay.style.display = "block";
     }
     paused = !paused;
-}
-
-function addObjectsToScene(objects: THREE.Mesh[]) {
-    for (var i = 0; i < objects.length; i++) {
-        scene.add(objects[i])
-    }
-}
-
-function removeObjectsFromScene(objects: THREE.Mesh[]) {
-    for (var i = 0; i < objects.length; i++) {
-        scene.remove(objects[i])
-    }
 }
 
 function resetGame() {
     console.log("resetting game...");
     music.stop();
-    deathSound.play()
+    deathSound.play();
     score = 0;
     scoreElement.textContent = score.toFixed(1);
-    // Cleanup old objects
-    removeObjectsFromScene([...walls, ...bouncePads, ...spikes])
-
-    walls = wall.createWalls();
-    bouncePads = createBouncePads();
-    spikes = spike.createSpikes();
-    addObjectsToScene(walls);
-    addObjectsToScene(bouncePads);
-    addObjectsToScene(spikes);
-
-    player.reset()
-    startGame()
+    objects.forEach((meshes, _) => {
+        meshes.forEach((mesh, _) => {
+           scene.remove(mesh)
+        });
+    });
+    objects = new Map();
+    furthestObjectPosition = 0;
+    currentVelocity = DEFAULT_OBSTACLE_VELOCITY
+    player.reset();
+    startGame();
 }
 
-function onKeyPress(event: any) {
-    switch (event.key) {
-        case ' ':
-            if (!paused) { player.jump(); }
-            break;
-        case 'p':
-            togglePause();
-        default:
-            console.debug(`Key ${event.key} pressed`);
+window.addEventListener('keydown', (event) => {
+    if (event.key === ' ') {
+        if (!paused) player.jump();
+    } else if (event.key === 'p') {
+        togglePause();
     }
-}
-
-window.addEventListener('keydown', onKeyPress);
+});

@@ -2,13 +2,13 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { Player } from './player';
 
-const INITIAL_WALL_COUNT = 11;
+const INITIAL_WALL_COUNT = 3;
 
-function randomWallHeight(minHeight: number, maxHeight: number) {
+export function randomWallHeight(minHeight: number, maxHeight: number) {
     return Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
 }
 
-function createWall(startingPosition: number, height: number) {
+export function createWall(startingPosition: number, height: number) {
     var height = height
     var startingPosition = startingPosition;
     const geometry = new RoundedBoxGeometry(1, height, 1);

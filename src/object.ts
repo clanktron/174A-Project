@@ -1,9 +1,19 @@
 import * as THREE from 'three';
+import { OBJECT_REMOVAL_DISTANCE, OBJECT_SPACING, OBJECT_SPAWN_DISTANCE } from './globals';
+import { Player } from './player';
+import { createWall, randomWallHeight } from './wall';
+import { createBouncePad } from './bouncePad';
+import { createSpike } from './spike';
 
 export function updateObjectPositions(delta_time: number, objects: THREE.Mesh[], currentVelocity: number) {
+    var furthestObjectPosition = 0
     for (var i = 0; i < objects.length; i++) {
         objects[i].position.x -= currentVelocity * delta_time;
+        if (objects[i].position.x > furthestObjectPosition) {
+            furthestObjectPosition = objects[i].position.x
+        }
     }
+    return furthestObjectPosition
 }
 
 export function collision(object: THREE.Mesh, player: THREE.Mesh): boolean {
@@ -26,4 +36,26 @@ export function checkForObstacleCollisions(objects: THREE.Mesh[], player: THREE.
     if (collisions(objects, player)) {
         reset()
     }
+}
+
+export function addObjectsToScene(objects: THREE.Mesh[], scene: THREE.Scene) {
+    for (var i = 0; i < objects.length; i++) {
+        scene.add(objects[i])
+    }
+}
+
+export function removeObjectsFromScene(objects: THREE.Mesh[], scene: THREE.Scene) {
+    for (var i = 0; i < objects.length; i++) {
+        scene.remove(objects[i])
+    }
+}
+
+export function removeOffscreenObjects(objects: THREE.Mesh[], scene: THREE.Scene): THREE.Mesh[] {
+    return objects.filter((obj) => {
+        if (obj.position.x < OBJECT_REMOVAL_DISTANCE) {
+            scene.remove(obj);
+            return false;
+        }
+        return true;
+    });
 }

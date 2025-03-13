@@ -1,0 +1,2 @@
+
+export const DEFAULT_OBSTACLE_VELOCITY = 10;

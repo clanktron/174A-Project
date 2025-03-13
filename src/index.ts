@@ -88,10 +88,20 @@ function spawnObjects(objects: Map<string, THREE.Mesh[]>) {
 
 let furthestObjectPosition = 0
 let currentVelocity = DEFAULT_OBSTACLE_VELOCITY
+let timeElapsed = 0
 
 function animate() {
     controls.update();
     let delta_time = clock.getDelta();
+    timeElapsed += delta_time;
+
+    // More pronounced camera panning effect
+    const panX = Math.sin(timeElapsed * 0.15) * 6;  // Increased side-to-side sway
+    const panY = Math.sin(timeElapsed * 0.1) * 3;   // More noticeable vertical movement
+    const panZ = Math.cos(timeElapsed * 0.12) * 6;  // Stronger forward-backward drift
+
+    // Update camera position while keeping it looking at the obstacles
+    camera.position.set(-10 + panX, 4 + panY, 12 + panZ);
 
     if (gameStarted && !paused) {
         currentVelocity += 0.0005

@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -11,9 +12,56 @@ document.body.appendChild(renderer.domElement);
 const listener = new THREE.AudioListener();
 camera.add(listener);
 
-// Background color
-let backgroundColor = new THREE.Color();
-scene.background = backgroundColor;
+const uniforms = {
+    u_time: { value: 0.0 },
+    u_audio: { value: 0.0 },
+    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+};
+
+const backgroundShaderMaterial = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: `
+        void main() {
+            gl_Position = vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform float u_time;
+        uniform float u_audio;
+        uniform vec2 u_resolution;
+
+        void main() {
+            vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+            uv -= 0.5;
+            uv.x *= u_resolution.x / u_resolution.y; 
+
+            float intensity = u_audio;
+            
+            // Pulsating effect
+            float pulse = sin(u_time * 5.0 + intensity * 10.0) * 0.5 + 0.5;
+
+            // Circular wave distortion
+            float dist = length(uv);
+            float wave = sin(dist * 10.0 - u_time * 3.0) * 0.1;
+            uv += uv * wave * intensity;
+
+            // Color shifting
+            vec3 color = vec3(0.5 + 0.5 * sin(u_time + uv.x * 5.0), 
+                              0.5 + 0.5 * sin(u_time + uv.y * 5.0), 
+                              0.5 + 0.5 * cos(u_time));
+
+            color += pulse * 0.3; // Brighten with pulse
+
+            gl_FragColor = vec4(color, 1.0);
+        }
+    `,
+    depthWrite: false, // Prevent depth issues
+});
+
+const backgroundMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), backgroundShaderMaterial);
+const backgroundScene = new THREE.Scene();
+const backgroundCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+backgroundScene.add(backgroundMesh);
 
 // Light Source
 let light = new THREE.PointLight(0xffffff, 100, 0, 1);
@@ -25,6 +73,10 @@ const HUE_MIN = 0.2;  // Adjust these values to control the hue range
 const HUE_MAX = 0.8;  // (0-1 represents the full color spectrum)
 const LIGHTNESS_MIN = 0.3;  // Prevent colors from getting too dark
 const LIGHTNESS_MAX = 0.7;  // Prevent colors from getting too bright
+
+// Background color
+let backgroundColor = new THREE.Color();
+scene.background = backgroundColor;
 
 // Generate random initial values within constraints
 const initialHue = HUE_MIN + Math.random() * (HUE_MAX - HUE_MIN);
@@ -42,7 +94,7 @@ const spikeCount = 35;
 
 // Player object
 let player_height = 0.5;
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+const geometry = new RoundedBoxGeometry(1, 1, 1);
 const material = new THREE.MeshPhongMaterial({ color: 0x0000ff })
 const player = new THREE.Mesh(geometry, material);
 player.position.y = player_height;
@@ -63,6 +115,8 @@ musicLoader.load('audio_sources/Geometry Dash - Fingerdash (Song).mp3', function
 	music.setLoop( true );
 	music.setVolume( 0.5 );
 });
+const musicAnalyzer = new THREE.AudioAnalyser(music, 32)
+
 const deathSound = new THREE.Audio(listener);
 const deathSoundLoader = new THREE.AudioLoader();
 deathSoundLoader.load('audio_sources/Geometry Dash - Death Sound.mp3', function( buffer ) {
@@ -141,6 +195,17 @@ function animate() {
     backgroundColor.setHSL(hue, 0.5, lightness);
     scene.background = backgroundColor;
 
+    uniforms.u_time.value += 0.01;
+
+    // Get frequency data from analyser
+    const data = musicAnalyzer.getFrequencyData();
+    // Emphasize bass frequencies (lower part of spectrum)
+    let bass = data.slice(0, 10).reduce((sum, val) => sum + val, 0) / 10;
+    uniforms.u_audio.value = bass / 256.0; // Normalize
+
+    // Render background shader first
+    renderer.render(backgroundScene, backgroundCamera);
+
     renderer.render(scene, camera);
 }
 
@@ -183,7 +248,7 @@ function addObjectsToScene(objects: THREE.Mesh[]) {
 
 function createBouncePad(xPosition: number) {
     var height = 0.2;
-    const geometry = new THREE.BoxGeometry(1, 0.4, 1);
+    const geometry = new RoundedBoxGeometry(1, 0.4, 1);
     //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
     const bouncePad = new THREE.Mesh(geometry, material);
@@ -205,7 +270,7 @@ function createBouncePads(count: number) {
 
 function createSpike(xPosition: number) {
     var height = 0.4;
-    const geometry = new THREE.ConeGeometry(0.75, 0.75, 4, 1, false, Math.PI/4);
+    const geometry = new THREE.ConeGeometry(0.5, 0.75, 10, 1, false, Math.PI/4);
     const material = new THREE.MeshPhongMaterial({ color: 0xff00ff });
     const spike = new THREE.Mesh(geometry, material);
     spike.position.y = height;
@@ -231,7 +296,7 @@ function randomWallHeight(minHeight: number, maxHeight: number) {
 function createWall(startingPosition: number, height: number) {
     var height = height
     var startingPosition = startingPosition;
-    const geometry = new THREE.BoxGeometry(1, height, 1);
+    const geometry = new RoundedBoxGeometry(1, height, 1);
     const material = new THREE.MeshPhongMaterial({ color: 0xBC4A3C })
     const wall = new THREE.Mesh(geometry, material);
     wall.position.y = height / 2;

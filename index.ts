@@ -7,6 +7,10 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// Audio Listener (attached to camera)
+const listener = new THREE.AudioListener();
+camera.add(listener);
+
 // Background color
 let backgroundColor = new THREE.Color();
 scene.background = backgroundColor;
@@ -51,15 +55,38 @@ camera.position.y = 1;
 
 const clock = new THREE.Clock();
 
+// Global sound sources
+const music = new THREE.Audio(listener);
+const musicLoader = new THREE.AudioLoader();
+musicLoader.load('audio_sources/Geometry Dash - Fingerdash (Song).mp3', function( buffer ) {
+	music.setBuffer( buffer );
+	music.setLoop( true );
+	music.setVolume( 0.5 );
+});
+const deathSound = new THREE.Audio(listener);
+const deathSoundLoader = new THREE.AudioLoader();
+deathSoundLoader.load('audio_sources/Geometry Dash - Death Sound.mp3', function( buffer ) {
+	deathSound.setBuffer( buffer );
+	deathSound.setLoop( false );
+	deathSound.setVolume( 0.5 );
+});
+
 let max_jumps = 2;
 let jump_counter = max_jumps;
 let y_velocity = 0;
 const gravity = -9.8;
 let default_obstacle_velocity = 10;
 
+let gameStarted = false;
+const startOverlay = document.getElementById("start-overlay")!;
+const startButton = document.getElementById("start-button")!;
+startOverlay.style.display = "block";
+startButton.addEventListener("click", () => { startGame(); });
+
 let paused = false;
 const pauseOverlay = document.getElementById("pause-overlay")!;
 const resumeButton = document.getElementById("resume-button")!;
+resumeButton.addEventListener("click", () => { togglePause(); });
 
 let score = 0;
 let highScore = parseFloat(localStorage.getItem("highScore") || "0"); // Load high score from localStorage
@@ -75,14 +102,17 @@ scene.add(floor);
 addObjectsToScene(walls);
 addObjectsToScene(bouncePads);
 addObjectsToScene(spikes);
+music.play();
 
 function animate() {
     controls.update();
     let delta_time = clock.getDelta();
     time += delta_time;
 
-    if (!paused) {
+    if (gameStarted && !paused) {
         clock.start();
+        if (!music.isPlaying) music.play();
+
         updatePlayer(delta_time);
         updateBouncePads(delta_time, bouncePads);
         updateSpikes(delta_time, spikes);
@@ -99,6 +129,7 @@ function animate() {
         }
     } else {
         clock.stop();
+        music.pause()
     }
     
     // Background color animation with constraints
@@ -121,6 +152,12 @@ function jump() {
         y_velocity = jump_velocity;
         jump_counter--;
     }
+}
+
+function startGame() {
+    startOverlay.style.display = "none";
+    gameStarted = true;
+    if (!music.isPlaying) music.play(0.5);
 }
 
 function togglePause() {
@@ -249,7 +286,7 @@ function updateSpikePositions(delta_time: number, spikes: THREE.Mesh[]) {
 
 function checkSpikeCollisions(spikes: THREE.Mesh[]) {
     for (var i = 0; i < spikes.length; i++) {
-        if ((spikes[i].position.x <= 1) && (spikes[i].position.x >= -1) && (player.position.y <= 0.7)) {
+        if ((spikes[i].position.x <= 1) && (spikes[i].position.x >= -1) && (player.position.y <= 0.75)) {
             resetGame();
         }
     }
@@ -294,6 +331,8 @@ function checkForWallCollisions(walls: THREE.Mesh[]) {
 }
 
 function resetGame() {
+    music.stop();
+    deathSound.play();
     console.log("resetting game...");
 
     // Set score to 0
@@ -321,6 +360,8 @@ function resetGame() {
     player.position.set(0, player_height, 0);
     y_velocity = 0;
     jump_counter = max_jumps;
+    // Restart music
+    music.play(0.5);
 }
 
 function onKeyPress(event: any) {
@@ -334,7 +375,5 @@ function onKeyPress(event: any) {
             console.debug(`Key ${event.key} pressed`);
     }
 }
-
-resumeButton.addEventListener("click", () => { togglePause(); });
 
 window.addEventListener('keydown', onKeyPress);

@@ -2,16 +2,13 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { updateBackgroundColor } from './background';
+import { deathSound, music } from './audio';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
-// Audio Listener (attached to camera)
-const listener = new THREE.AudioListener();
-camera.add(listener);
 
 const uniforms = {
     u_time: { value: 0.0 },
@@ -88,24 +85,6 @@ camera.position.y = 1;
 
 const clock = new THREE.Clock();
 
-// Global sound sources
-const music = new THREE.Audio(listener);
-const musicLoader = new THREE.AudioLoader();
-musicLoader.load('audio_sources/Geometry Dash - Fingerdash (Song).mp3', function( buffer ) {
-	music.setBuffer( buffer );
-	music.setLoop( true );
-	music.setVolume( 0.5 );
-});
-const musicAnalyzer = new THREE.AudioAnalyser(music, 32)
-
-const deathSound = new THREE.Audio(listener);
-const deathSoundLoader = new THREE.AudioLoader();
-deathSoundLoader.load('audio_sources/Geometry Dash - Death Sound.mp3', function( buffer ) {
-	deathSound.setBuffer( buffer );
-	deathSound.setLoop( false );
-	deathSound.setVolume( 0.5 );
-});
-
 let max_jumps = 2;
 let jump_counter = max_jumps;
 let y_velocity = 0;
@@ -137,7 +116,6 @@ scene.add(floor);
 addObjectsToScene(walls);
 addObjectsToScene(bouncePads);
 addObjectsToScene(spikes);
-music.play();
 
 let time = 0
 function animate() {
@@ -147,7 +125,7 @@ function animate() {
 
     if (gameStarted && !paused) {
         clock.start();
-        if (!music.isPlaying) music.play();
+        if (!music.isPlaying) music.play()
 
         updatePlayer(delta_time);
         updateBouncePads(delta_time, bouncePads);
@@ -167,17 +145,12 @@ function animate() {
         clock.stop();
         music.pause()
     }
-    
 
     scene.background = updateBackgroundColor(time);
 
     uniforms.u_time.value += 0.01;
 
-    // Get frequency data from analyser
-    const data = musicAnalyzer.getFrequencyData();
-    // Emphasize bass frequencies (lower part of spectrum)
-    let bass = data.slice(0, 10).reduce((sum, val) => sum + val, 0) / 10;
-    uniforms.u_audio.value = bass / 256.0; // Normalize
+    // uniforms.u_audio.value = bass / 256.0; // Normalize
 
     // Render background shader first
     renderer.render(backgroundScene, backgroundCamera);
@@ -198,7 +171,7 @@ function jump() {
 function startGame() {
     startOverlay.style.display = "none";
     gameStarted = true;
-    if (!music.isPlaying) music.play(0.5);
+    music.play()
 }
 
 function togglePause() {
@@ -373,9 +346,8 @@ function checkForWallCollisions(walls: THREE.Mesh[]) {
 
 function resetGame() {
     music.stop();
-    deathSound.play();
+    deathSound.play()
     console.log("resetting game...");
-
     // Set score to 0
     score = 0;
     scoreElement.textContent = score.toFixed(1);
@@ -401,8 +373,6 @@ function resetGame() {
     player.position.set(0, player_height, 0);
     y_velocity = 0;
     jump_counter = max_jumps;
-    // Restart music
-    music.play(0.5);
 }
 
 function onKeyPress(event: any) {

@@ -35,7 +35,7 @@ export function landedOnWall(wall: THREE.Mesh, player: Player) {
     const wallBox = new THREE.Box3().setFromObject(wall);
     const playerBox = new THREE.Box3().setFromObject(player.Mesh);
     // Ensure player is above wall when intersecting
-    return wallBox.intersectsBox(playerBox) && player.Mesh.position.y > (wall.position.y * 2);
+    return wallBox.intersectsBox(playerBox) && player.Mesh.position.y - player.Height/2 > (wall.position.y * 2);
 }
 
 export function checkForWallLandings(walls: THREE.Mesh[], player: Player) {

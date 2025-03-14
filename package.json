@@ -4,7 +4,8 @@
   "description": "Three.js based Scrolling Game",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "format": "prettier --write .",
+    "lint": "eslint . --fix"
   },
   "author": "Clayton Castro, Alexander Neary, Teodors Smith",
   "license": "ISC",

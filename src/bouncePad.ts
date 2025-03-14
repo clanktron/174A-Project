@@ -5,13 +5,13 @@ import { Player } from './player';
 
 const INITIAL_PAD_COUNT = 3;
 
-const height = 0.2
+const height = 0.4
 
 export function createBouncePad(xPosition: number) {
-    const geometry = new RoundedBoxGeometry(1, 0.4, 1);
+    const geometry = new RoundedBoxGeometry(1, height, 1);
     const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
     const bouncePad = new THREE.Mesh(geometry, material);
-    bouncePad.position.y = height
+    bouncePad.position.y = height/2
     bouncePad.position.x = xPosition
     return bouncePad
 }

@@ -9,14 +9,12 @@ export function randomWallHeight(minHeight: number, maxHeight: number) {
 }
 
 export function createWall(startingPosition: number, height: number) {
-    var height = height
-    var startingPosition = startingPosition;
-    const geometry = new RoundedBoxGeometry(1, height, 1);
-    const material = new THREE.MeshPhongMaterial({ color: 0xBC4A3C })
-    const wall = new THREE.Mesh(geometry, material);
-    wall.position.y = height / 2;
-    wall.position.x = startingPosition;
-    return wall
+  const geometry = new RoundedBoxGeometry(1, height, 1);
+  const material = new THREE.MeshPhongMaterial({ color: 0xbc4a3c });
+  const wall = new THREE.Mesh(geometry, material);
+  wall.position.y = height / 2;
+  wall.position.x = startingPosition;
+  return wall;
 }
 
 
@@ -35,16 +33,16 @@ export function landedOnWall(wall: THREE.Mesh, player: Player) {
     const wallBox = new THREE.Box3().setFromObject(wall);
     const playerBox = new THREE.Box3().setFromObject(player.Mesh);
     // Ensure player is above wall when intersecting
-    return wallBox.intersectsBox(playerBox) && player.Mesh.position.y - player.Height/2 > (wall.position.y * 2);
+    return wallBox.intersectsBox(playerBox) && player.Mesh.position.y > (wall.position.y * 2);
 }
 
 export function checkForWallLandings(walls: THREE.Mesh[], player: Player) {
-    for (var i = 0; i < walls.length; i++) {
-        if (landedOnWall(walls[i], player)) {
-            // console.debug("landed on wall")
-            player.YVelocity = 0;
-            player.JumpCounter = player.MaxJumps;
-            player.Mesh.position.y = (walls[i].position.y * 2) + player.Height + 0.001;
-        }
+  for (let i = 0; i < walls.length; i++) {
+    if (landedOnWall(walls[i], player)) {
+      // console.debug("landed on wall")
+      player.YVelocity = 0;
+      player.JumpCounter = player.MaxJumps;
+      player.Mesh.position.y = walls[i].position.y * 2 + player.Height/2 + 0.001;
     }
+  }
 }

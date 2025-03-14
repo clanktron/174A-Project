@@ -121,7 +121,7 @@ function animate() {
             localStorage.setItem("highScore", highScore.toFixed(1));
         }
     }
-    scene.background = updateBackgroundColor(score / 100);
+    scene.background = updateBackgroundColor(timeElapsed);
     renderer.render(scene, camera);
 }
 

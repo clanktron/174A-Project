@@ -24,8 +24,16 @@
 			Speed: <span id="currentVelocity">0</span> | Score: <span id="score">0</span> | High Score: <span id="high-score">0</span>
 		</div>
 
+		<div id="legend">
+			<ul style="text-align: left;">
+				<li><strong>Space</strong> - Jump</li>
+				<li><strong>R</strong> - Restart</li>
+				<li><strong>P</strong> - Pause</li>
+			</ul>
+		</div>
+
 		<style>
-			#start-overlay {
+			#start-overlay, #pause-overlay {
 				position: fixed;
 				top: 50%;
 				left: 50%;
@@ -34,14 +42,14 @@
 				font-weight: bold;
 				color: white;
 				background: rgba(0, 0, 0, 0.8);
-				padding: 1000px;
+				padding: 50px;
 				border-radius: 10px;
 				display: none;
 				text-align: center;
 				z-index: 100;
 			}
 
-			#start-button {
+			#start-button, #resume-button {
 				font-size: 20px;
 				padding: 10px 20px;
 				margin-top: 10px;
@@ -52,37 +60,7 @@
 				border-radius: 5px;
 			}
 
-			#start-button:hover {
-				background: #218838;
-			}
-			#pause-overlay {
-				position: fixed;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				font-size: 32px;
-				font-weight: bold;
-				color: white;
-				background: rgba(0, 0, 0, 0.8);
-				padding: 1000px;
-				border-radius: 10px;
-				display: none;
-				text-align: center;
-				z-index: 100;
-			}
-
-			#resume-button {
-				font-size: 20px;
-				padding: 10px 20px;
-				margin-top: 10px;
-				background: #28a745;
-				color: white;
-				border: none;
-				cursor: pointer;
-				border-radius: 5px;
-			}
-
-			#resume-button:hover {
+			#start-button:hover, #resume-button:hover {
 				background: #218838;
 			}
 
@@ -97,6 +75,33 @@
 				padding: 10px 20px;
 				border-radius: 10px;
 				z-index: 10;
+			}
+
+			#legend {
+				position: fixed;
+				top: 10px;
+				left: 10px;
+				font-size: 20px;
+				color: white;
+				background: rgba(0, 0, 0, 0.5);
+				padding: 10px 15px;
+				border-radius: 10px;
+				z-index: 10;
+			}
+
+			#legend h3 {
+				margin: 0;
+				font-size: 18px;
+			}
+
+			#legend ul {
+				padding: 0;
+				margin: 5px 0 0 0;
+				list-style: none;
+			}
+
+			#legend li {
+				margin: 2px 0;
 			}
 		</style>
 	</body>

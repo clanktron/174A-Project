@@ -83,6 +83,7 @@ let currentVelocity = DEFAULT_OBSTACLE_VELOCITY
 let timeElapsed = 0
 let furthestSpawnPosition = 0
 let timeSinceLastSpawn = 0
+let objectSpawnTime = 0.5
 
 function animate() {
     controls.update();
@@ -101,7 +102,7 @@ function animate() {
         currentVelocity += 0.0005;
         floorTexture.offset.x += currentVelocity * delta_time;
         timeSinceLastSpawn += delta_time;
-        if (timeSinceLastSpawn >= 1.3) {
+        if (timeSinceLastSpawn >= objectSpawnTime) { 
             spawnSinglePattern(currentVelocity);
             timeSinceLastSpawn = 0;
         }
@@ -138,6 +139,7 @@ function startGame() {
     startOverlay.style.display = "none";
     gameStarted = true;
     paused = false
+    timeSinceLastSpawn = objectSpawnTime - 0.1;
     music.play();
     clock.start();
 }

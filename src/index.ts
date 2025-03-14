@@ -130,6 +130,7 @@ renderer.setAnimationLoop(animate);
 function startGame() {
     startOverlay.style.display = "none";
     gameStarted = true;
+    paused = false
     music.play();
     clock.start();
 }

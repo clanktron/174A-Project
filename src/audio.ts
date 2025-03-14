@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-const backgroundAudioFile = 'audio_sources/Geometry Dash - Fingerdash (Song).mp3';
-const deathAudioFile = 'audio_sources/Geometry Dash - Death Sound.mp3';
+const backgroundAudioFile = '/audio/Geometry Dash - Fingerdash (Song).mp3';
+const deathAudioFile = '/audio/Geometry Dash - Death Sound.mp3';
 
 export const listener = new THREE.AudioListener();
 

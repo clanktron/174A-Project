@@ -45,8 +45,9 @@ export function addObjectsToScene(objects: THREE.Mesh[], scene: THREE.Scene) {
 }
 
 export function removeObjectsFromScene(objects: THREE.Mesh[], scene: THREE.Scene) {
-    for (var i = 0; i < objects.length; i++) {
-        scene.remove(objects[i])
+    for (let i = objects.length - 1; i >= 0; i--) {
+        scene.remove(objects[i]);
+        objects.splice(i, 1);
     }
 }
 
@@ -59,3 +60,4 @@ export function removeOffscreenObjects(objects: THREE.Mesh[], scene: THREE.Scene
         return true;
     });
 }
+

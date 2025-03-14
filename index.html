@@ -32,6 +32,7 @@
 			</ul>
 		</div>
 
+		<!-- Mobile-Only Buttons -->
 		<button id="jump-button">Jump</button>
 		<button id="pause-button">Pause</button>
 		<button id="restart-button">Restart</button>
@@ -108,9 +109,11 @@
 				margin: 2px 0;
 			}
 
-			#jump-button, #pause-button, #restart-button {
-				position: fixed;
-				font-size: 2vw;
+
+			/* Universal Button Styling */
+			button {
+				font-size: min(4vw, 20px);  /* Scales but maxes out at 20px */
+				padding: 1vh 1vw;  /* Adjusts to screen size */
 				background: rgba(0, 0, 0, 0.5);
 				color: white;
 				border: none;
@@ -119,19 +122,41 @@
 				z-index: 100;
 			}
 
+			/* Positioning for Mobile and PC */
 			#jump-button {
-				bottom: 3vh;
-				right: 2vw;
+				position: fixed;
+				bottom: 5vh; /* Higher placement for easier reach */
+				right: 5vw;
+				width: 15vw; /* Bigger touch area */
+				height: 8vh;
 			}
 
+			/* Pause & Restart Buttons - Larger & Closer on Mobile */
+			#pause-button, #restart-button {
+				position: fixed;
+				left: 5vw;
+				width: 15vw;
+				height: 8vh;
+			}
+
+			/* Pause above Restart */
 			#pause-button {
-				bottom: 3vh;
-				left: 2vw;
+				bottom: 15vh;
+			}
+			#restart-button {
+				bottom: 5vh;
 			}
 
-			#restart-button {
-				bottom: 10vh;
-				left: 2vw;
+			/* Initially hide buttons on all devices */
+			#jump-button, #pause-button, #restart-button {
+				display: none !important;  /* Ensure they are hidden by default */
+			}
+
+			/* Show buttons only on mobile devices */
+			@media (hover: none) and (pointer: coarse) {
+				#jump-button, #pause-button, #restart-button {
+					display: block !important;
+				}
 			}
 
 			#jump-button:hover, #pause-button:hover, #restart-button:hover {

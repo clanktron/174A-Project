@@ -48,11 +48,11 @@ highScoreElement.textContent = highScore.toFixed(1);
 const speedElement = document.getElementById("currentVelocity")!;
 
 const jumpButton = document.getElementById("jump-button")!;
-jumpButton.addEventListener("click", () => { if (gameStarted && !paused) { player.jump(); jumpButton.blur(); }});
+jumpButton.addEventListener("touchstart", (event) => { event.preventDefault(); if (gameStarted && !paused) player.jump(); });
 const pauseButton = document.getElementById("pause-button")!;
-pauseButton.addEventListener("click", () => { togglePause(); pauseButton.blur(); });
+pauseButton.addEventListener("touchstart", (event) => { event.preventDefault(); togglePause(); });
 const restartButton = document.getElementById("restart-button")!;
-restartButton.addEventListener("click", () => { resetGame(); restartButton.blur(); });
+restartButton.addEventListener("touchstart", (event) => { event.preventDefault(); resetGame(); });
 
 let objects: Map<string, THREE.Mesh[]> = new Map();
 const { floor, floorTexture } = createFloor();

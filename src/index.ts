@@ -47,6 +47,13 @@ const highScoreElement = document.getElementById("high-score")!;
 highScoreElement.textContent = highScore.toFixed(1);
 const speedElement = document.getElementById("currentVelocity")!;
 
+const jumpButton = document.getElementById("jump-button")!;
+jumpButton.addEventListener("click", () => { if (gameStarted && !paused) { player.jump(); jumpButton.blur(); }});
+const pauseButton = document.getElementById("pause-button")!;
+pauseButton.addEventListener("click", () => { togglePause(); pauseButton.blur(); });
+const restartButton = document.getElementById("restart-button")!;
+restartButton.addEventListener("click", () => { resetGame(); restartButton.blur(); });
+
 let objects: Map<string, THREE.Mesh[]> = new Map();
 const { floor, floorTexture } = createFloor();
 const player = new Player();

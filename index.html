@@ -32,6 +32,10 @@
 			</ul>
 		</div>
 
+		<button id="jump-button">Jump</button>
+		<button id="pause-button">Pause</button>
+		<button id="restart-button">Restart</button>
+
 		<style>
 			#start-overlay, #pause-overlay {
 				position: fixed;
@@ -102,6 +106,36 @@
 
 			#legend li {
 				margin: 2px 0;
+			}
+
+			#jump-button, #pause-button, #restart-button {
+				position: fixed;
+				font-size: 2vw;
+				background: rgba(0, 0, 0, 0.5);
+				color: white;
+				border: none;
+				cursor: pointer;
+				border-radius: 10px;
+				z-index: 100;
+			}
+
+			#jump-button {
+				bottom: 3vh;
+				right: 2vw;
+			}
+
+			#pause-button {
+				bottom: 3vh;
+				left: 2vw;
+			}
+
+			#restart-button {
+				bottom: 10vh;
+				left: 2vw;
+			}
+
+			#jump-button:hover, #pause-button:hover, #restart-button:hover {
+				background: rgba(0, 0, 0, 0.7);
 			}
 		</style>
 	</body>

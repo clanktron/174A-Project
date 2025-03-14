@@ -135,16 +135,18 @@ function startGame() {
 }
 
 function togglePause() {
-    if (paused) {
-        music.play();
-        clock.start();
-        pauseOverlay.style.display = "none";
-    } else {
-        clock.stop();
-        music.pause();
-        pauseOverlay.style.display = "block";
+    if (gameStarted) {
+        if (paused) {
+            music.play();
+            clock.start();
+            pauseOverlay.style.display = "none";
+        } else {
+            clock.stop();
+            music.pause();
+            pauseOverlay.style.display = "block";
+        }
+        paused = !paused;
     }
-    paused = !paused;
 }
 
 function resetGame() {

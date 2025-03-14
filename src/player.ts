@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 const DEFAULT_HEIGHT = 0.5;
 const MAX_JUMPS = 2;
@@ -7,45 +7,45 @@ const JUMP_VELOCITY = 5;
 const GRAVITY = -9.8;
 
 export class Player {
-    Mesh: THREE.Mesh;
-    Height: number;
-    MaxJumps: number;
-    JumpCounter: number;
-    YVelocity: number;
+  Mesh: THREE.Mesh;
+  Height: number;
+  MaxJumps: number;
+  JumpCounter: number;
+  YVelocity: number;
 
-    constructor() {
-        const geometry = new RoundedBoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-        this.Mesh = new THREE.Mesh(geometry, material);
-        this.Mesh.position.y = DEFAULT_HEIGHT;
+  constructor() {
+    const geometry = new RoundedBoxGeometry(1, 1, 1);
+    const material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+    this.Mesh = new THREE.Mesh(geometry, material);
+    this.Mesh.position.y = DEFAULT_HEIGHT;
 
-        this.Height = DEFAULT_HEIGHT;
-        this.MaxJumps = MAX_JUMPS;
-        this.JumpCounter = MAX_JUMPS;
-        this.YVelocity = 0;
+    this.Height = DEFAULT_HEIGHT;
+    this.MaxJumps = MAX_JUMPS;
+    this.JumpCounter = MAX_JUMPS;
+    this.YVelocity = 0;
+  }
+
+  update(deltaTime: number, gravity: number = GRAVITY) {
+    this.YVelocity += gravity * deltaTime;
+    this.Mesh.position.y += this.YVelocity * deltaTime;
+
+    if (this.Mesh.position.y <= this.Height && this.YVelocity <= 0) {
+      this.Mesh.position.y = this.Height;
+      this.YVelocity = 0;
+      this.JumpCounter = this.MaxJumps;
     }
+  }
 
-    update(deltaTime: number, gravity: number = GRAVITY) {
-        this.YVelocity += gravity * deltaTime;
-        this.Mesh.position.y += this.YVelocity * deltaTime;
+  reset() {
+    this.Mesh.position.set(0, this.Height, 0);
+    this.YVelocity = 0;
+    this.JumpCounter = this.MaxJumps;
+  }
 
-        if (this.Mesh.position.y <= this.Height && this.YVelocity <= 0) {
-            this.Mesh.position.y = this.Height;
-            this.YVelocity = 0;
-            this.JumpCounter = this.MaxJumps;
-        }
+  jump() {
+    if (this.JumpCounter > 0) {
+      this.YVelocity = JUMP_VELOCITY;
+      this.JumpCounter--;
     }
-
-    reset() {
-        this.Mesh.position.set(0, this.Height, 0);
-        this.YVelocity = 0;
-        this.JumpCounter = this.MaxJumps;
-    }
-
-    jump() {
-        if (this.JumpCounter > 0) {
-            this.YVelocity = JUMP_VELOCITY;
-            this.JumpCounter--;
-        }
-    }
+  }
 }

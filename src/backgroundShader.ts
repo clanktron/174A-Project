@@ -1,19 +1,21 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 const uniforms = {
-    u_time: { value: 0.0 },
-    u_audio: { value: 0.0 },
-    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+  u_time: { value: 0.0 },
+  u_audio: { value: 0.0 },
+  u_resolution: {
+    value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+  },
 };
 
 const backgroundShaderMaterial = new THREE.ShaderMaterial({
-    uniforms: uniforms,
-    vertexShader: `
+  uniforms: uniforms,
+  vertexShader: `
         void main() {
             gl_Position = vec4(position, 1.0);
         }
     `,
-    fragmentShader: `
+  fragmentShader: `
         uniform float u_time;
         uniform float u_audio;
         uniform vec2 u_resolution;
@@ -43,20 +45,22 @@ const backgroundShaderMaterial = new THREE.ShaderMaterial({
             gl_FragColor = vec4(color, 1.0);
         }
     `,
-    depthWrite: false, // Prevent depth issues
+  depthWrite: false, // Prevent depth issues
 });
 
-const backgroundMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), backgroundShaderMaterial);
+const backgroundMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(2, 2),
+  backgroundShaderMaterial,
+);
 const backgroundScene = new THREE.Scene();
 const backgroundCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 backgroundScene.add(backgroundMesh);
 
 function animate() {
-    uniforms.u_time.value += 0.01;
+  uniforms.u_time.value += 0.01;
 
-    // uniforms.u_audio.value = bass / 256.0; // Normalize
+  // uniforms.u_audio.value = bass / 256.0; // Normalize
 
-    // Render background shader first
-    // renderer.render(backgroundScene, backgroundCamera);
+  // Render background shader first
+  // renderer.render(backgroundScene, backgroundCamera);
 }
-

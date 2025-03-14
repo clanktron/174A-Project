@@ -1,103 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Trigonometry Rush</title>
-		<style>
-			body { margin: 0; }
-		</style>
-	</head>
-	<body>
-		<script type="module" src="src/index.ts"></script>
+  <head>
+    <meta charset="utf-8" />
+    <title>Trigonometry Rush</title>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="src/index.ts"></script>
 
-		<div id="start-overlay">
-			<h1>TRIGONOMETRY RUSH</h1>
-			<button id="start-button">Start</button>
-		</div>
+    <div id="start-overlay">
+      <h1>TRIGONOMETRY RUSH</h1>
+      <button id="start-button">Start</button>
+    </div>
 
-		<div id="pause-overlay">
-			<h1>PAUSED</h1>
-			<button id="resume-button">Resume</button>
-		</div>
+    <div id="pause-overlay">
+      <h1>PAUSED</h1>
+      <button id="resume-button">Resume</button>
+    </div>
 
-		<div id="score-display">
-			Speed: <span id="currentVelocity">0</span> | Score: <span id="score">0</span> | High Score: <span id="high-score">0</span>
-		</div>
+    <div id="score-display">
+      Speed: <span id="currentVelocity">0</span> | Score:
+      <span id="score">0</span> | High Score: <span id="high-score">0</span>
+    </div>
 
-		<style>
-			#start-overlay {
-				position: fixed;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				font-size: 32px;
-				font-weight: bold;
-				color: white;
-				background: rgba(0, 0, 0, 0.8);
-				padding: 1000px;
-				border-radius: 10px;
-				display: none;
-				text-align: center;
-				z-index: 100;
-			}
+    <style>
+      #start-overlay {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 1000px;
+        border-radius: 10px;
+        display: none;
+        text-align: center;
+        z-index: 100;
+      }
 
-			#start-button {
-				font-size: 20px;
-				padding: 10px 20px;
-				margin-top: 10px;
-				background: #28a745;
-				color: white;
-				border: none;
-				cursor: pointer;
-				border-radius: 5px;
-			}
+      #start-button {
+        font-size: 20px;
+        padding: 10px 20px;
+        margin-top: 10px;
+        background: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+      }
 
-			#start-button:hover {
-				background: #218838;
-			}
-			#pause-overlay {
-				position: fixed;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				font-size: 32px;
-				font-weight: bold;
-				color: white;
-				background: rgba(0, 0, 0, 0.8);
-				padding: 1000px;
-				border-radius: 10px;
-				display: none;
-				text-align: center;
-				z-index: 100;
-			}
+      #start-button:hover {
+        background: #218838;
+      }
+      #pause-overlay {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 1000px;
+        border-radius: 10px;
+        display: none;
+        text-align: center;
+        z-index: 100;
+      }
 
-			#resume-button {
-				font-size: 20px;
-				padding: 10px 20px;
-				margin-top: 10px;
-				background: #28a745;
-				color: white;
-				border: none;
-				cursor: pointer;
-				border-radius: 5px;
-			}
+      #resume-button {
+        font-size: 20px;
+        padding: 10px 20px;
+        margin-top: 10px;
+        background: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+      }
 
-			#resume-button:hover {
-				background: #218838;
-			}
+      #resume-button:hover {
+        background: #218838;
+      }
 
-			#score-display {
-				position: fixed;
-				top: 10px;
-				left: 50%;
-				transform: translateX(-50%);
-				font-size: 24px;
-				color: white;
-				background: rgba(0, 0, 0, 0.5);
-				padding: 10px 20px;
-				border-radius: 10px;
-				z-index: 10;
-			}
-		</style>
-	</body>
+      #score-display {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 24px;
+        color: white;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px 20px;
+        border-radius: 10px;
+        z-index: 10;
+      }
+    </style>
+  </body>
 </html>
